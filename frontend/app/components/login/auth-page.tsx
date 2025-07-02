@@ -180,19 +180,21 @@ export default function AuthPage() {
       });
 
       router.push("/dashboard");
-    } catch (err: any) {
-      console.error("Login failed:", err);
-
+    } catch (err: unknown) {
+      const error = err as Error;
+    
+      console.error("Login failed:", error);
+    
       signInForm.setError("root", {
         message: "Something went wrong. Please try again.",
       });
-
-      // ✅ Updated error toast without invalid variant
+    
       toast("⚠️ Unable to sign in", {
-        description: err?.message ?? "Unexpected error. Please try again.",
+        description: error.message ?? "Unexpected error. Please try again.",
         className: "bg-red-500 text-white border border-red-600",
       });
     }
+    
   };
 
   const handleRegister = async (data: RegistrationFormData) => {
@@ -224,11 +226,13 @@ export default function AuthPage() {
           message: "Unexpected response. Please try again.",
         });
       }
-    } catch (err: any) {
-      console.error("❌ Registration failed:", err);
-
+    } catch (err: unknown) {
+      const error = err as Error;
+    
+      console.error("❌ Registration failed:", error);
+    
       registrationForm.setError("root", {
-        message: err?.message || "Registration failed. Please try again.",
+        message: error.message || "Registration failed. Please try again.",
       });
     }
   };
