@@ -1,46 +1,36 @@
-"use client";
-import { useState } from "react";
-import { useForm } from "react-hook-form";
-import { zodResolver } from "@hookform/resolvers/zod";
-import { z } from "zod";
+"use client"
 
-import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
-import {
-  Card,
-  CardContent,
-  CardDescription,
-  CardHeader,
-  CardTitle,
-} from "@/components/ui/card";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { Alert, AlertDescription } from "@/components/ui/alert";
-import { Checkbox } from "@/components/ui/checkbox";
-import {
-  useRegisterMutation,
-  useSignInMutation,
-} from "@/features/user/userApi";
-import { useAuthStore } from "@/store/useAuthStore";
-import { useRouter } from "next/navigation";
+import { useState } from "react"
+import { useForm } from "react-hook-form"
+import { zodResolver } from "@hookform/resolvers/zod"
+import { z } from "zod"
+import { Button } from "@/components/ui/button"
+import { Input } from "@/components/ui/input"
+import { Label } from "@/components/ui/label"
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
+import { Alert, AlertDescription } from "@/components/ui/alert"
+import { Checkbox } from "@/components/ui/checkbox"
+import { useRegisterMutation, useSignInMutation } from "@/features/user/userApi"
+import { useAuthStore } from "@/store/useAuthStore"
+import { useRouter } from "next/navigation"
+
 const signInSchema = z.object({
-  email: z
-    .string()
-    .min(1, "Email is required")
-    .email("Please enter a valid email address"),
+  email: z.string().min(1, "Email is required").email("Please enter a valid email address"),
   password: z.string().min(1, "Password is required"),
   rememberMe: z.boolean().optional(),
-});
-import { Toaster } from "@/components/ui/sonner";
-import { toast } from "sonner";
+})
+
+import { Toaster } from "@/components/ui/sonner"
+import { toast } from "sonner"
 
 export interface RegistrationRequest {
-  email: string;
-  password: string;
-  confirmPassword: string;
-  firstName: string;
-  lastName: string;
-  mobile: string;
+  email: string
+  password: string
+  confirmPassword: string
+  firstName: string
+  lastName: string
+  mobile: string
 }
 
 const registrationSchema = z
@@ -55,10 +45,7 @@ const registrationSchema = z
       .min(1, "Last name is required")
       .min(2, "Last name must be at least 2 characters long")
       .regex(/^[a-zA-Z\s]+$/, "Last name can only contain letters and spaces"),
-    email: z
-      .string()
-      .min(1, "Email is required")
-      .email("Please enter a valid email address"),
+    email: z.string().min(1, "Email is required").email("Please enter a valid email address"),
     mobile: z
       .string()
       .min(1, "Mobile number is required")
@@ -70,38 +57,32 @@ const registrationSchema = z
       .string()
       .min(1, "Password is required")
       .min(8, "Password must be at least 8 characters long")
-      .regex(
-        /(?=.*[a-z])/,
-        "Password must contain at least one lowercase letter"
-      )
-      .regex(
-        /(?=.*[A-Z])/,
-        "Password must contain at least one uppercase letter"
-      )
+      .regex(/(?=.*[a-z])/, "Password must contain at least one lowercase letter")
+      .regex(/(?=.*[A-Z])/, "Password must contain at least one uppercase letter")
       .regex(/(?=.*\d)/, "Password must contain at least one number")
-      .regex(
-        /(?=.*[@$!%*?&])/,
-        "Password must contain at least one special character (@$!%*?&)"
-      ),
+      .regex(/(?=.*[@$!%*?&])/, "Password must contain at least one special character (@$!%*?&)"),
     confirmPassword: z.string().min(1, "Please confirm your password"),
   })
   .refine((data) => data.password === data.confirmPassword, {
     message: "Passwords do not match",
     path: ["confirmPassword"],
-  });
+  })
 
-type SignInFormData = z.infer<typeof signInSchema>;
-type RegistrationFormData = z.infer<typeof registrationSchema>;
+type SignInFormData = z.infer<typeof signInSchema>
+type RegistrationFormData = z.infer<typeof registrationSchema>
 
 export default function AuthPage() {
-  const [showPassword, setShowPassword] = useState(false);
-  const [showConfirmPassword, setShowConfirmPassword] = useState(false);
-  const { signIn } = useAuthStore();
-  const [triggerSignIn, { isLoading }] = useSignInMutation();
-  const [triggerRegister] = useRegisterMutation();
-  const [activeTab, setActiveTab] = useState("signin");
+  const [showPassword, setShowPassword] = useState(false)
+  const [showConfirmPassword, setShowConfirmPassword] = useState(false)
+  const { signIn } = useAuthStore()
+  const [triggerSignIn, { isLoading }] = useSignInMutation()
+  const [triggerRegister] = useRegisterMutation()
+  const [activeTab, setActiveTab] = useState("signin")
+  const router = useRouter()
 
-  const router = useRouter();
+  // Animation states
+  const [loginProgress, setLoginProgress] = useState(0)
+  const [loginSuccess, setLoginSuccess] = useState(false)
 
   const signInForm = useForm<SignInFormData>({
     resolver: zodResolver(signInSchema),
@@ -110,7 +91,7 @@ export default function AuthPage() {
       password: "",
       rememberMe: false,
     },
-  });
+  })
 
   // Registration Form
   const registrationForm = useForm<RegistrationFormData>({
@@ -123,215 +104,318 @@ export default function AuthPage() {
       password: "",
       confirmPassword: "",
     },
-  });
+  })
 
-  const passwordValue = registrationForm.watch("password");
+  const passwordValue = registrationForm.watch("password")
 
-  const getPasswordStrength = (
-    password: string
-  ): { strength: number; label: string; color: string } => {
-    let strength = 0;
-    if (password.length >= 8) strength++;
-    if (/(?=.*[a-z])/.test(password)) strength++;
-    if (/(?=.*[A-Z])/.test(password)) strength++;
-    if (/(?=.*\d)/.test(password)) strength++;
-    if (/(?=.*[@$!%*?&])/.test(password)) strength++;
+  const getPasswordStrength = (password: string): { strength: number; label: string; color: string } => {
+    let strength = 0
+    if (password.length >= 8) strength++
+    if (/(?=.*[a-z])/.test(password)) strength++
+    if (/(?=.*[A-Z])/.test(password)) strength++
+    if (/(?=.*\d)/.test(password)) strength++
+    if (/(?=.*[@$!%*?&])/.test(password)) strength++
 
-    const labels = ["Very Weak", "Weak", "Fair", "Good", "Strong"];
-    const colors = [
-      "bg-red-500",
-      "bg-orange-500",
-      "bg-yellow-500",
-      "bg-blue-500",
-      "bg-green-500",
-    ];
+    const labels = ["Very Weak", "Weak", "Fair", "Good", "Strong"]
+    const colors = ["bg-red-500", "bg-orange-500", "bg-yellow-500", "bg-blue-500", "bg-green-500"]
 
     return {
       strength: (strength / 5) * 100,
       label: labels[strength - 1] || "Very Weak",
       color: colors[strength - 1] || "bg-red-500",
-    };
-  };
+    }
+  }
+
+  const simulateLoginProgress = () => {
+    setLoginProgress(0)
+    const interval = setInterval(() => {
+      setLoginProgress((prev) => {
+        if (prev >= 100) {
+          clearInterval(interval)
+          return 100
+        }
+        return prev + Math.random() * 15 + 5
+      })
+    }, 200)
+    return interval
+  }
 
   const handleSignIn = async (data: SignInFormData) => {
+    // Start animation
+    setLoginSuccess(false)
+    const progressInterval = simulateLoginProgress()
+
     try {
       const result = await triggerSignIn({
         ...data,
         rememberMe: data.rememberMe ?? false,
-      }).unwrap();
+      }).unwrap()
 
       if (!result.exists) {
-        signInForm.setError("root", { message: "Invalid email or password" });
+        // Clear animation on error
+        clearInterval(progressInterval)
+        setLoginProgress(0)
 
+        signInForm.setError("root", { message: "Invalid email or password" })
         toast("❌ Invalid credentials", {
           description: "Please check your email and password.",
           className: "bg-red-500 text-white border border-red-600",
-        });
-
-        return;
+        })
+        return
       }
 
-      // ✅ logged in
-      signIn({ user: result.user, token: result.token });
+      // Complete progress and show success
+      clearInterval(progressInterval)
+      setLoginProgress(100)
+      setLoginSuccess(true)
 
+      // Wait for success animation
+      await new Promise((resolve) => setTimeout(resolve, 1000))
+
+      signIn({ user: result.user, token: result.token })
       toast(`👋 Welcome back, ${result.user.name}!`, {
-        description: "You’re now signed in.",
+        description: "You're now signed in.",
         duration: 3000,
-      });
-
-      router.push("/dashboard");
+      })
+      router.push("/dashboard")
     } catch (err: unknown) {
-      const error = err as Error;
-    
-      console.error("Login failed:", error);
-    
+      // Clear animation on error
+      clearInterval(progressInterval)
+      setLoginProgress(0)
+
+      const error = err as Error
+      console.error("Login failed:", error)
       signInForm.setError("root", {
         message: "Something went wrong. Please try again.",
-      });
-    
+      })
       toast("⚠️ Unable to sign in", {
         description: error.message ?? "Unexpected error. Please try again.",
         className: "bg-red-500 text-white border border-red-600",
-      });
+      })
+    } finally {
+      // Reset animation states
+      setLoginProgress(0)
+      setLoginSuccess(false)
     }
-    
-  };
+  }
 
   const handleRegister = async (data: RegistrationFormData) => {
     try {
       const result = await triggerRegister({
         ...data,
-      }).unwrap();
+      }).unwrap()
 
-      console.log("✅ Registration result:", result);
+      console.log("✅ Registration result:", result)
 
       if (result.exists) {
         // User already registered
         registrationForm.setError("root", {
           message: "User already registered.",
-        });
-        return;
+        })
+        return
       }
 
       if (result.user) {
         toast("🎉 Registration complete!", {
           description: "You can now log in to your account.",
-        });
-      
-        registrationForm.reset();  // <-- Clear form inputs and errors
-        setActiveTab("signin");    // <-- Switch tab to Sign In
+        })
+        registrationForm.reset() // <-- Clear form inputs and errors
+        setActiveTab("signin") // <-- Switch tab to Sign In
       } else {
         // Unexpected structure
         registrationForm.setError("root", {
           message: "Unexpected response. Please try again.",
-        });
+        })
       }
     } catch (err: unknown) {
-      const error = err as Error;
-    
-      console.error("❌ Registration failed:", error);
-    
+      const error = err as Error
+      console.error("❌ Registration failed:", error)
       registrationForm.setError("root", {
         message: error.message || "Registration failed. Please try again.",
-      });
+      })
     }
-  };
+  }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-50 to-slate-100">
+    <div className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50 to-indigo-100 relative overflow-hidden">
+      {/* Animated background elements */}
+      <div className="absolute inset-0 overflow-hidden">
+        <div className="absolute -top-40 -right-40 w-80 h-80 bg-gradient-to-br from-blue-400/20 to-purple-600/20 rounded-full blur-3xl animate-pulse"></div>
+        <div className="absolute -bottom-40 -left-40 w-80 h-80 bg-gradient-to-br from-pink-400/20 to-orange-600/20 rounded-full blur-3xl animate-pulse delay-1000"></div>
+        <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-96 h-96 bg-gradient-to-br from-cyan-400/10 to-blue-600/10 rounded-full blur-3xl animate-spin-slow"></div>
+      </div>
+
       <Toaster
         position="top-center"
         className="!top-6 max-w-md mx-auto"
         toastOptions={{
           classNames: {
             toast:
-              "bg-white shadow-lg rounded-xl border border-gray-200 px-4 py-3 text-gray-900",
+              "bg-white/90 backdrop-blur-sm shadow-xl rounded-xl border border-gray-200/50 px-4 py-3 text-gray-900 animate-in slide-in-from-top-2 duration-300",
             title: "font-semibold text-base",
             description: "text-sm text-muted-foreground",
           },
         }}
       />
-      <div className="grid lg:grid-cols-2 min-h-screen">
-        <div className="hidden lg:flex items-center justify-center p-8">
-          <div className="max-w-2xl text-center">
-            <div className="mb-8">
+
+      <div className="grid lg:grid-cols-2 min-h-screen relative z-10">
+        {/* Left side - Hero section */}
+        <div className="hidden lg:flex items-center justify-center p-8 relative">
+          <div className="max-w-2xl text-center transform hover:scale-105 transition-transform duration-700 ease-out">
+            <div className="mb-8 relative group">
               <img
-                src="/food-nutrition-groups-set.png?height=400&width=600"
+                src="/food-nutrition-groups-set.png"
                 alt="Caloriq Visual"
-                className="w-full h-auto max-w-lg mx-auto"
+                className="w-full h-auto max-w-md mx-auto relative z-10 transition-all duration-500"
               />
             </div>
-            <h1 className="text-3xl font-bold text-slate-800 mb-4">
+            <h1 className="text-4xl font-bold bg-gradient-to-r from-slate-800 via-blue-800 to-purple-800 bg-clip-text text-transparent mb-4 animate-in fade-in-50 slide-in-from-bottom-4 duration-1000">
               Your Health, Your Way
             </h1>
-            <p className="text-lg text-slate-600 mb-6">
-              Track calories, monitor nutrition, and achieve your wellness goals
-              with our comprehensive health platform.
+            <p className="text-lg text-slate-600 mb-8 animate-in fade-in-50 slide-in-from-bottom-4 duration-1000 delay-200">
+              Track calories, monitor nutrition, and achieve your wellness goals with our comprehensive health platform.
             </p>
-            <div className="flex items-center justify-center space-x-8 text-sm text-slate-500">
-              <div className="flex items-center space-x-2">
-                <div className="w-3 h-3 bg-green-500 rounded-full"></div>
-                <span>Nutrition Tracking</span>
+            <div className="flex items-center justify-center space-x-8 text-sm text-slate-500 animate-in fade-in-50 slide-in-from-bottom-4 duration-1000 delay-400">
+              <div className="flex items-center space-x-2 group cursor-pointer">
+                <div className="w-3 h-3 bg-gradient-to-r from-green-400 to-green-600 rounded-full group-hover:scale-125 transition-transform duration-300 shadow-lg"></div>
+                <span className="group-hover:text-green-600 transition-colors duration-300">Nutrition Tracking</span>
               </div>
-              <div className="flex items-center space-x-2">
-                <div className="w-3 h-3 bg-blue-500 rounded-full"></div>
-                <span>Fitness Goals</span>
+              <div className="flex items-center space-x-2 group cursor-pointer">
+                <div className="w-3 h-3 bg-gradient-to-r from-blue-400 to-blue-600 rounded-full group-hover:scale-125 transition-transform duration-300 shadow-lg"></div>
+                <span className="group-hover:text-blue-600 transition-colors duration-300">Fitness Goals</span>
               </div>
-              <div className="flex items-center space-x-2">
-                <div className="w-3 h-3 bg-purple-500 rounded-full"></div>
-                <span>Health Insights</span>
+              <div className="flex items-center space-x-2 group cursor-pointer">
+                <div className="w-3 h-3 bg-gradient-to-r from-purple-400 to-purple-600 rounded-full group-hover:scale-125 transition-transform duration-300 shadow-lg"></div>
+                <span className="group-hover:text-purple-600 transition-colors duration-300">Health Insights</span>
               </div>
             </div>
           </div>
         </div>
 
-        <div className="flex items-center justify-center p-4 lg:p-8">
-          <Card className="w-full max-w-md shadow-2xl border-0 bg-white/80 backdrop-blur-sm rounded-2xl">
-            <CardHeader className="space-y-1 text-center">
-              <CardTitle className="text-2xl bg-gradient-to-r from-slate-900 to-slate-700 bg-clip-text text-transparent">
+        {/* Right side - Auth form */}
+        <div className="flex items-center justify-center p-4 lg:p-8 relative">
+          <Card className="w-full max-w-md shadow-2xl border-0 bg-white/80 backdrop-blur-xl rounded-3xl relative overflow-hidden animate-in fade-in-50 slide-in-from-right-4 duration-1000">
+            {/* Card glow effect */}
+            <div className="absolute inset-0 bg-gradient-to-r from-blue-600/10 via-purple-600/10 to-pink-600/10 rounded-3xl blur-xl"></div>
+
+            {/* Loading overlay with enhanced animations */}
+            {isLoading && (
+              <div className="absolute inset-0 bg-white/95 backdrop-blur-sm z-50 flex items-center justify-center rounded-3xl">
+                <div className="text-center space-y-6">
+                  {/* Animated logo/icon */}
+                  <div className="relative">
+                    <div className="w-16 h-16 mx-auto">
+                      {loginSuccess ? (
+                        <div className="w-16 h-16 bg-gradient-to-r from-green-400 to-green-600 rounded-full flex items-center justify-center animate-bounce">
+                          <svg
+                            className="w-8 h-8 text-white animate-pulse"
+                            fill="none"
+                            stroke="currentColor"
+                            viewBox="0 0 24 24"
+                          >
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={3} d="M5 13l4 4L19 7" />
+                          </svg>
+                        </div>
+                      ) : (
+                        <div className="relative">
+                          <div className="w-16 h-16 border-4 border-slate-200 rounded-full"></div>
+                          <div className="absolute inset-0 w-16 h-16 border-4 border-blue-500 border-t-transparent rounded-full animate-spin"></div>
+                          <div className="absolute inset-2 w-12 h-12 border-2 border-purple-400 border-b-transparent rounded-full animate-spin animate-reverse"></div>
+                        </div>
+                      )}
+                    </div>
+                  </div>
+
+                  {/* Progress bar */}
+                  {!loginSuccess && (
+                    <div className="w-64 mx-auto space-y-2">
+                      <div className="flex justify-between text-sm text-slate-600">
+                        <span>Signing you in...</span>
+                        <span>{Math.round(loginProgress)}%</span>
+                      </div>
+                      <div className="w-full bg-slate-200 rounded-full h-2 overflow-hidden">
+                        <div
+                          className="h-2 bg-gradient-to-r from-blue-500 via-purple-500 to-pink-500 rounded-full transition-all duration-300 ease-out relative"
+                          style={{ width: `${loginProgress}%` }}
+                        >
+                          <div className="absolute inset-0 bg-white/30 animate-pulse"></div>
+                        </div>
+                      </div>
+                    </div>
+                  )}
+
+                  {/* Status messages */}
+                  <div className="space-y-2">
+                    {loginSuccess ? (
+                      <div className="animate-in fade-in-50 slide-in-from-bottom-2 duration-500">
+                        <p className="text-lg font-semibold text-green-600 animate-pulse">Welcome back!</p>
+                        <p className="text-sm text-slate-600">Redirecting to your dashboard...</p>
+                      </div>
+                    ) : (
+                      <div className="space-y-1">
+                        <p className="text-lg font-semibold text-slate-700">
+                          {loginProgress < 30
+                            ? "Verifying credentials..."
+                            : loginProgress < 60
+                              ? "Authenticating..."
+                              : loginProgress < 90
+                                ? "Setting up your session..."
+                                : "Almost ready..."}
+                        </p>
+                        <div className="flex items-center justify-center space-x-1">
+                          <div className="w-2 h-2 bg-blue-500 rounded-full animate-bounce"></div>
+                          <div className="w-2 h-2 bg-purple-500 rounded-full animate-bounce delay-100"></div>
+                          <div className="w-2 h-2 bg-pink-500 rounded-full animate-bounce delay-200"></div>
+                        </div>
+                      </div>
+                    )}
+                  </div>
+                </div>
+              </div>
+            )}
+
+            <CardHeader className="space-y-1 text-center relative z-10">
+              <CardTitle className="text-3xl bg-gradient-to-r from-slate-900 via-blue-800 to-purple-800 bg-clip-text text-transparent animate-in fade-in-50 slide-in-from-top-2 duration-1000">
                 <span className="font-light">Welcome to </span>
-                <span className="font-bold">CALORIQ</span>
+                <span className="font-bold tracking-wider">CALORIQ</span>
               </CardTitle>
-              <CardDescription className="text-slate-600">
+              <CardDescription className="text-slate-600 animate-in fade-in-50 slide-in-from-top-2 duration-1000 delay-200">
                 Sign in to your account or create a new one
               </CardDescription>
             </CardHeader>
-            <CardContent>
-              <Tabs
-                value={activeTab}
-                onValueChange={(value) => setActiveTab(value)}
-                className="w-full"
-              >
-                <TabsList className="grid w-full grid-cols-2 mb-6">
+
+            <CardContent className="relative z-10">
+              <Tabs value={activeTab} onValueChange={(value) => setActiveTab(value)} className="w-full">
+                <TabsList className="grid w-full grid-cols-2 mb-6 bg-slate-100/50 backdrop-blur-sm rounded-xl p-1">
                   <TabsTrigger
                     value="signin"
-                    className="text-sm transition-colors duration-200 hover:bg-muted hover:text-primary rounded-md py-2 data-[state=active]:bg-gray-800 data-[state=active]:text-white"
+                    className="text-sm transition-all duration-300 hover:bg-white/80 hover:text-primary rounded-lg py-2.5 data-[state=active]:bg-gradient-to-r data-[state=active]:from-slate-800 data-[state=active]:to-slate-900 data-[state=active]:text-white data-[state=active]:shadow-lg transform data-[state=active]:scale-105"
                   >
                     Sign In
                   </TabsTrigger>
                   <TabsTrigger
                     value="register"
-                    className="text-sm transition-colors duration-200 hover:bg-muted hover:text-primary rounded-md py-2 data-[state=active]:bg-gray-800 data-[state=active]:text-white"
+                    className="text-sm transition-all duration-300 hover:bg-white/80 hover:text-primary rounded-lg py-2.5 data-[state=active]:bg-gradient-to-r data-[state=active]:from-slate-800 data-[state=active]:to-slate-900 data-[state=active]:text-white data-[state=active]:shadow-lg transform data-[state=active]:scale-105"
                   >
                     Register
                   </TabsTrigger>
                 </TabsList>
 
-                <TabsContent value="signin" className="space-y-4">
-                  <form
-                    onSubmit={signInForm.handleSubmit(handleSignIn)}
-                    className="space-y-4"
-                  >
-                    <div className="space-y-2">
+                <TabsContent
+                  value="signin"
+                  className="space-y-4 animate-in fade-in-50 slide-in-from-left-2 duration-500"
+                >
+                  <form onSubmit={signInForm.handleSubmit(handleSignIn)} className="space-y-4">
+                    <div className="space-y-2 group">
                       <Label
                         htmlFor="signin-email"
-                        className="text-sm font-medium text-slate-700"
+                        className="text-sm font-medium text-slate-700 group-focus-within:text-blue-600 transition-colors duration-300"
                       >
                         Email
                       </Label>
                       <div className="relative">
                         <svg
-                          className="absolute left-3 top-3 h-4 w-4 text-slate-400"
+                          className="absolute left-3 top-3 h-4 w-4 text-slate-400 group-focus-within:text-blue-500 transition-colors duration-300"
                           fill="none"
                           stroke="currentColor"
                           viewBox="0 0 24 24"
@@ -347,16 +431,16 @@ export default function AuthPage() {
                           id="signin-email"
                           type="email"
                           placeholder="Enter your email"
-                          className={`pl-10 h-11 border-gray-400 ${
+                          className={`pl-10 h-12 border-gray-300 bg-white/50 backdrop-blur-sm transition-all duration-300 hover:bg-white/80 focus:bg-white focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20 focus:scale-105 ${
                             signInForm.formState.errors.email
-                              ? "border-red-500 focus-visible:ring-red-500"
+                              ? "border-red-500 focus-visible:ring-red-500/20 animate-shake"
                               : ""
                           }`}
                           {...signInForm.register("email")}
                         />
                         {signInForm.formState.errors.email && (
                           <svg
-                            className="absolute right-3 top-3 h-4 w-4 text-red-500"
+                            className="absolute right-3 top-3 h-4 w-4 text-red-500 animate-bounce"
                             fill="none"
                             stroke="currentColor"
                             viewBox="0 0 24 24"
@@ -371,7 +455,7 @@ export default function AuthPage() {
                         )}
                       </div>
                       {signInForm.formState.errors.email && (
-                        <Alert className="border-red-200 bg-red-50">
+                        <Alert className="border-red-200 bg-red-50/80 backdrop-blur-sm animate-in slide-in-from-top-1 duration-300">
                           <AlertDescription className="text-red-800 text-sm">
                             {signInForm.formState.errors.email.message}
                           </AlertDescription>
@@ -379,16 +463,16 @@ export default function AuthPage() {
                       )}
                     </div>
 
-                    <div className="space-y-2">
+                    <div className="space-y-2 group">
                       <Label
                         htmlFor="signin-password"
-                        className="text-sm font-medium text-slate-700"
+                        className="text-sm font-medium text-slate-700 group-focus-within:text-blue-600 transition-colors duration-300"
                       >
                         Password
                       </Label>
                       <div className="relative">
                         <svg
-                          className="absolute left-3 top-3 h-4 w-4 text-slate-400"
+                          className="absolute left-3 top-3 h-4 w-4 text-slate-400 group-focus-within:text-blue-500 transition-colors duration-300"
                           fill="none"
                           stroke="currentColor"
                           viewBox="0 0 24 24"
@@ -404,9 +488,9 @@ export default function AuthPage() {
                           id="signin-password"
                           type={showPassword ? "text" : "password"}
                           placeholder="Enter your password"
-                          className={`pl-10 pr-10 border-gray-400 h-11 ${
+                          className={`pl-10 pr-10 h-12 border-gray-300 bg-white/50 backdrop-blur-sm transition-all duration-300 hover:bg-white/80 focus:bg-white focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20 focus:scale-105 ${
                             signInForm.formState.errors.password
-                              ? "border-red-500 focus-visible:ring-red-500"
+                              ? "border-red-500 focus-visible:ring-red-500/20 animate-shake"
                               : ""
                           }`}
                           {...signInForm.register("password")}
@@ -414,15 +498,10 @@ export default function AuthPage() {
                         <button
                           type="button"
                           onClick={() => setShowPassword(!showPassword)}
-                          className="absolute right-3 top-3 text-slate-400 hover:text-slate-600"
+                          className="absolute right-3 top-3 text-slate-400 hover:text-slate-600 transition-all duration-300 hover:scale-110"
                         >
                           {showPassword ? (
-                            <svg
-                              className="h-4 w-4"
-                              fill="none"
-                              stroke="currentColor"
-                              viewBox="0 0 24 24"
-                            >
+                            <svg className="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                               <path
                                 strokeLinecap="round"
                                 strokeLinejoin="round"
@@ -431,12 +510,7 @@ export default function AuthPage() {
                               />
                             </svg>
                           ) : (
-                            <svg
-                              className="h-4 w-4"
-                              fill="none"
-                              stroke="currentColor"
-                              viewBox="0 0 24 24"
-                            >
+                            <svg className="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                               <path
                                 strokeLinecap="round"
                                 strokeLinejoin="round"
@@ -454,7 +528,7 @@ export default function AuthPage() {
                         </button>
                       </div>
                       {signInForm.formState.errors.password && (
-                        <Alert className="border-red-200 bg-red-50">
+                        <Alert className="border-red-200 bg-red-50/80 backdrop-blur-sm animate-in slide-in-from-top-1 duration-300">
                           <AlertDescription className="text-red-800 text-sm">
                             {signInForm.formState.errors.password.message}
                           </AlertDescription>
@@ -463,28 +537,29 @@ export default function AuthPage() {
                     </div>
 
                     <div className="flex items-center justify-between text-sm">
-                      <div className="flex items-center space-x-2">
+                      <div className="flex items-center space-x-2 group">
                         <Checkbox
                           id="remember"
+                          className="transition-all duration-300 hover:scale-110"
                           {...signInForm.register("rememberMe")}
                         />
                         <Label
                           htmlFor="remember"
-                          className="text-slate-600 cursor-pointer"
+                          className="text-slate-600 cursor-pointer group-hover:text-slate-800 transition-colors duration-300"
                         >
                           Remember me
                         </Label>
                       </div>
                       <a
                         href="#"
-                        className="text-slate-600 hover:text-slate-900 hover:underline"
+                        className="text-slate-600 hover:text-blue-600 hover:underline transition-all duration-300 hover:scale-105"
                       >
                         Forgot password?
                       </a>
                     </div>
 
                     {signInForm.formState.errors.root && (
-                      <Alert className="border-red-200 bg-red-50">
+                      <Alert className="border-red-200 bg-red-50/80 backdrop-blur-sm animate-in slide-in-from-top-1 duration-300">
                         <AlertDescription className="text-red-800 text-sm">
                           {signInForm.formState.errors.root.message}
                         </AlertDescription>
@@ -494,31 +569,39 @@ export default function AuthPage() {
                     <Button
                       type="submit"
                       disabled={signInForm.formState.isSubmitting || isLoading}
-                      className="w-full h-11 bg-slate-900 hover:bg-slate-800 text-white disabled:opacity-50"
+                      className="w-full h-12 bg-gradient-to-r from-slate-800 to-slate-900 hover:from-slate-900 hover:to-black text-white disabled:opacity-50 transition-all duration-300 hover:scale-105 hover:shadow-xl relative overflow-hidden group"
                     >
-                      {signInForm.formState.isSubmitting || isLoading
-                        ? "Signing In..."
-                        : "Sign In"}
+                      <span className="relative z-10">
+                        {signInForm.formState.isSubmitting || isLoading ? (
+                          <div className="flex items-center space-x-2">
+                            <div className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin"></div>
+                            <span>Signing In...</span>
+                          </div>
+                        ) : (
+                          "Sign In"
+                        )}
+                      </span>
+                      <div className="absolute inset-0 bg-gradient-to-r from-blue-600 to-purple-600 opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
                     </Button>
                   </form>
                 </TabsContent>
 
-                <TabsContent value="register" className="space-y-4">
-                  <form
-                    onSubmit={registrationForm.handleSubmit(handleRegister)}
-                    className="space-y-4"
-                  >
+                <TabsContent
+                  value="register"
+                  className="space-y-4 animate-in fade-in-50 slide-in-from-right-2 duration-500"
+                >
+                  <form onSubmit={registrationForm.handleSubmit(handleRegister)} className="space-y-4">
                     <div className="grid grid-cols-2 gap-4">
-                      <div className="space-y-2">
+                      <div className="space-y-2 group">
                         <Label
                           htmlFor="first-name"
-                          className="text-sm font-medium text-slate-700"
+                          className="text-sm font-medium text-slate-700 group-focus-within:text-blue-600 transition-colors duration-300"
                         >
                           First Name
                         </Label>
                         <div className="relative">
                           <svg
-                            className="absolute left-3 top-3 h-4 w-4 text-slate-400"
+                            className="absolute left-3 top-3 h-4 w-4 text-slate-400 group-focus-within:text-blue-500 transition-colors duration-300"
                             fill="none"
                             stroke="currentColor"
                             viewBox="0 0 24 24"
@@ -534,36 +617,33 @@ export default function AuthPage() {
                             id="first-name"
                             type="text"
                             placeholder="First name"
-                            className={`pl-10 h-11 border-gray-400 ${
+                            className={`pl-10 h-11 border-gray-300 bg-white/50 backdrop-blur-sm transition-all duration-300 hover:bg-white/80 focus:bg-white focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20 focus:scale-105 ${
                               registrationForm.formState.errors.firstName
-                                ? "border-red-500 focus-visible:ring-red-500"
+                                ? "border-red-500 focus-visible:ring-red-500/20 animate-shake"
                                 : ""
                             }`}
                             {...registrationForm.register("firstName")}
                           />
                         </div>
                         {registrationForm.formState.errors.firstName && (
-                          <Alert className="border-red-200 bg-red-50">
+                          <Alert className="border-red-200 bg-red-50/80 backdrop-blur-sm animate-in slide-in-from-top-1 duration-300">
                             <AlertDescription className="text-red-800 text-xs">
-                              {
-                                registrationForm.formState.errors.firstName
-                                  .message
-                              }
+                              {registrationForm.formState.errors.firstName.message}
                             </AlertDescription>
                           </Alert>
                         )}
                       </div>
 
-                      <div className="space-y-2">
+                      <div className="space-y-2 group">
                         <Label
                           htmlFor="last-name"
-                          className="text-sm font-medium text-slate-700"
+                          className="text-sm font-medium text-slate-700 group-focus-within:text-blue-600 transition-colors duration-300"
                         >
                           Last Name
                         </Label>
                         <div className="relative">
                           <svg
-                            className="absolute left-3 top-3 h-4 w-4 text-slate-400"
+                            className="absolute left-3 top-3 h-4 w-4 text-slate-400 group-focus-within:text-blue-500 transition-colors duration-300"
                             fill="none"
                             stroke="currentColor"
                             viewBox="0 0 24 24"
@@ -579,37 +659,34 @@ export default function AuthPage() {
                             id="last-name"
                             type="text"
                             placeholder="Last name"
-                            className={`pl-10 h-11 border-gray-400 ${
+                            className={`pl-10 h-11 border-gray-300 bg-white/50 backdrop-blur-sm transition-all duration-300 hover:bg-white/80 focus:bg-white focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20 focus:scale-105 ${
                               registrationForm.formState.errors.lastName
-                                ? "border-red-500 focus-visible:ring-red-500"
+                                ? "border-red-500 focus-visible:ring-red-500/20 animate-shake"
                                 : ""
                             }`}
                             {...registrationForm.register("lastName")}
                           />
                         </div>
                         {registrationForm.formState.errors.lastName && (
-                          <Alert className="border-red-200 bg-red-50">
+                          <Alert className="border-red-200 bg-red-50/80 backdrop-blur-sm animate-in slide-in-from-top-1 duration-300">
                             <AlertDescription className="text-red-800 text-xs">
-                              {
-                                registrationForm.formState.errors.lastName
-                                  .message
-                              }
+                              {registrationForm.formState.errors.lastName.message}
                             </AlertDescription>
                           </Alert>
                         )}
                       </div>
                     </div>
 
-                    <div className="space-y-2">
+                    <div className="space-y-2 group">
                       <Label
                         htmlFor="register-email"
-                        className="text-sm font-medium text-slate-700"
+                        className="text-sm font-medium text-slate-700 group-focus-within:text-blue-600 transition-colors duration-300"
                       >
                         Email
                       </Label>
                       <div className="relative">
                         <svg
-                          className="absolute left-3 top-3 h-4 w-4 text-slate-400"
+                          className="absolute left-3 top-3 h-4 w-4 text-slate-400 group-focus-within:text-blue-500 transition-colors duration-300"
                           fill="none"
                           stroke="currentColor"
                           viewBox="0 0 24 24"
@@ -625,16 +702,16 @@ export default function AuthPage() {
                           id="register-email"
                           type="email"
                           placeholder="Enter your email"
-                          className={`pl-10 h-11 border-gray-400 ${
+                          className={`pl-10 h-11 border-gray-300 bg-white/50 backdrop-blur-sm transition-all duration-300 hover:bg-white/80 focus:bg-white focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20 focus:scale-105 ${
                             registrationForm.formState.errors.email
-                              ? "border-red-500 focus-visible:ring-red-500"
+                              ? "border-red-500 focus-visible:ring-red-500/20 animate-shake"
                               : ""
                           }`}
                           {...registrationForm.register("email")}
                         />
                         {registrationForm.formState.errors.email && (
                           <svg
-                            className="absolute right-3 top-3 h-4 w-4 text-red-500"
+                            className="absolute right-3 top-3 h-4 w-4 text-red-500 animate-bounce"
                             fill="none"
                             stroke="currentColor"
                             viewBox="0 0 24 24"
@@ -649,7 +726,7 @@ export default function AuthPage() {
                         )}
                       </div>
                       {registrationForm.formState.errors.email && (
-                        <Alert className="border-red-200 bg-red-50">
+                        <Alert className="border-red-200 bg-red-50/80 backdrop-blur-sm animate-in slide-in-from-top-1 duration-300">
                           <AlertDescription className="text-red-800 text-sm">
                             {registrationForm.formState.errors.email.message}
                           </AlertDescription>
@@ -657,16 +734,16 @@ export default function AuthPage() {
                       )}
                     </div>
 
-                    <div className="space-y-2">
+                    <div className="space-y-2 group">
                       <Label
                         htmlFor="mobile"
-                        className="text-sm font-medium text-slate-700"
+                        className="text-sm font-medium text-slate-700 group-focus-within:text-blue-600 transition-colors duration-300"
                       >
                         Mobile Number
                       </Label>
                       <div className="relative">
                         <svg
-                          className="absolute left-3 top-3 h-4 w-4 text-slate-400"
+                          className="absolute left-3 top-3 h-4 w-4 text-slate-400 group-focus-within:text-blue-500 transition-colors duration-300"
                           fill="none"
                           stroke="currentColor"
                           viewBox="0 0 24 24"
@@ -682,16 +759,16 @@ export default function AuthPage() {
                           id="mobile"
                           type="tel"
                           placeholder="Enter your mobile number"
-                          className={`pl-10 h-11 border-gray-400 ${
+                          className={`pl-10 h-11 border-gray-300 bg-white/50 backdrop-blur-sm transition-all duration-300 hover:bg-white/80 focus:bg-white focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20 focus:scale-105 ${
                             registrationForm.formState.errors.mobile
-                              ? "border-red-500 focus-visible:ring-red-500"
+                              ? "border-red-500 focus-visible:ring-red-500/20 animate-shake"
                               : ""
                           }`}
                           {...registrationForm.register("mobile")}
                         />
                         {registrationForm.formState.errors.mobile && (
                           <svg
-                            className="absolute right-3 top-3 h-4 w-4 text-red-500"
+                            className="absolute right-3 top-3 h-4 w-4 text-red-500 animate-bounce"
                             fill="none"
                             stroke="currentColor"
                             viewBox="0 0 24 24"
@@ -706,7 +783,7 @@ export default function AuthPage() {
                         )}
                       </div>
                       {registrationForm.formState.errors.mobile && (
-                        <Alert className="border-red-200 bg-red-50">
+                        <Alert className="border-red-200 bg-red-50/80 backdrop-blur-sm animate-in slide-in-from-top-1 duration-300">
                           <AlertDescription className="text-red-800 text-sm">
                             {registrationForm.formState.errors.mobile.message}
                           </AlertDescription>
@@ -714,16 +791,16 @@ export default function AuthPage() {
                       )}
                     </div>
 
-                    <div className="space-y-2">
+                    <div className="space-y-2 group">
                       <Label
                         htmlFor="register-password"
-                        className="text-sm font-medium text-slate-700"
+                        className="text-sm font-medium text-slate-700 group-focus-within:text-blue-600 transition-colors duration-300"
                       >
                         Password
                       </Label>
                       <div className="relative">
                         <svg
-                          className="absolute left-3 top-3 h-4 w-4 text-slate-400"
+                          className="absolute left-3 top-3 h-4 w-4 text-slate-400 group-focus-within:text-blue-500 transition-colors duration-300"
                           fill="none"
                           stroke="currentColor"
                           viewBox="0 0 24 24"
@@ -739,9 +816,9 @@ export default function AuthPage() {
                           id="register-password"
                           type={showPassword ? "text" : "password"}
                           placeholder="Create a password"
-                          className={`pl-10 pr-10 h-11 border-gray-400 ${
+                          className={`pl-10 pr-10 h-11 border-gray-300 bg-white/50 backdrop-blur-sm transition-all duration-300 hover:bg-white/80 focus:bg-white focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20 focus:scale-105 ${
                             registrationForm.formState.errors.password
-                              ? "border-red-500 focus-visible:ring-red-500"
+                              ? "border-red-500 focus-visible:ring-red-500/20 animate-shake"
                               : ""
                           }`}
                           {...registrationForm.register("password")}
@@ -749,15 +826,10 @@ export default function AuthPage() {
                         <button
                           type="button"
                           onClick={() => setShowPassword(!showPassword)}
-                          className="absolute right-3 top-3 text-slate-400 hover:text-slate-600"
+                          className="absolute right-3 top-3 text-slate-400 hover:text-slate-600 transition-all duration-300 hover:scale-110"
                         >
                           {showPassword ? (
-                            <svg
-                              className="h-4 w-4"
-                              fill="none"
-                              stroke="currentColor"
-                              viewBox="0 0 24 24"
-                            >
+                            <svg className="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                               <path
                                 strokeLinecap="round"
                                 strokeLinejoin="round"
@@ -766,12 +838,7 @@ export default function AuthPage() {
                               />
                             </svg>
                           ) : (
-                            <svg
-                              className="h-4 w-4"
-                              fill="none"
-                              stroke="currentColor"
-                              viewBox="0 0 24 24"
-                            >
+                            <svg className="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                               <path
                                 strokeLinecap="round"
                                 strokeLinejoin="round"
@@ -788,45 +855,40 @@ export default function AuthPage() {
                           )}
                         </button>
                       </div>
+
                       {passwordValue && (
-                        <div className="space-y-2">
+                        <div className="space-y-2 animate-in fade-in-50 slide-in-from-top-1 duration-500">
                           <div className="flex items-center justify-between text-xs">
-                            <span className="text-slate-600">
-                              Password strength:
-                            </span>
+                            <span className="text-slate-600">Password strength:</span>
                             <span
-                              className={`font-medium ${
-                                getPasswordStrength(passwordValue).strength >=
-                                80
+                              className={`font-medium transition-colors duration-300 ${
+                                getPasswordStrength(passwordValue).strength >= 80
                                   ? "text-green-600"
-                                  : getPasswordStrength(passwordValue)
-                                      .strength >= 60
-                                  ? "text-blue-600"
-                                  : getPasswordStrength(passwordValue)
-                                      .strength >= 40
-                                  ? "text-yellow-600"
-                                  : "text-red-600"
+                                  : getPasswordStrength(passwordValue).strength >= 60
+                                    ? "text-blue-600"
+                                    : getPasswordStrength(passwordValue).strength >= 40
+                                      ? "text-yellow-600"
+                                      : "text-red-600"
                               }`}
                             >
                               {getPasswordStrength(passwordValue).label}
                             </span>
                           </div>
-                          <div className="w-full bg-slate-200 rounded-full h-2">
+                          <div className="w-full bg-slate-200 rounded-full h-2 overflow-hidden">
                             <div
-                              className={`h-2 rounded-full transition-all duration-300 ${
+                              className={`h-2 rounded-full transition-all duration-500 ease-out ${
                                 getPasswordStrength(passwordValue).color
-                              }`}
+                              } shadow-sm`}
                               style={{
-                                width: `${
-                                  getPasswordStrength(passwordValue).strength
-                                }%`,
+                                width: `${getPasswordStrength(passwordValue).strength}%`,
                               }}
                             />
                           </div>
                         </div>
                       )}
+
                       {registrationForm.formState.errors.password && (
-                        <Alert className="border-red-200 bg-red-50">
+                        <Alert className="border-red-200 bg-red-50/80 backdrop-blur-sm animate-in slide-in-from-top-1 duration-300">
                           <AlertDescription className="text-red-800 text-sm">
                             {registrationForm.formState.errors.password.message}
                           </AlertDescription>
@@ -834,16 +896,16 @@ export default function AuthPage() {
                       )}
                     </div>
 
-                    <div className="space-y-2">
+                    <div className="space-y-2 group">
                       <Label
                         htmlFor="confirm-password"
-                        className="text-sm font-medium text-slate-700"
+                        className="text-sm font-medium text-slate-700 group-focus-within:text-blue-600 transition-colors duration-300"
                       >
                         Confirm Password
                       </Label>
                       <div className="relative">
                         <svg
-                          className="absolute left-3 top-3 h-4 w-4 text-slate-400"
+                          className="absolute left-3 top-3 h-4 w-4 text-slate-400 group-focus-within:text-blue-500 transition-colors duration-300"
                           fill="none"
                           stroke="currentColor"
                           viewBox="0 0 24 24"
@@ -859,27 +921,20 @@ export default function AuthPage() {
                           id="confirm-password"
                           type={showConfirmPassword ? "text" : "password"}
                           placeholder="Confirm your password"
-                          className={`pl-10 pr-10 h-11 border-gray-400 ${
+                          className={`pl-10 pr-10 h-11 border-gray-300 bg-white/50 backdrop-blur-sm transition-all duration-300 hover:bg-white/80 focus:bg-white focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20 focus:scale-105 ${
                             registrationForm.formState.errors.confirmPassword
-                              ? "border-red-500 focus-visible:ring-red-500"
+                              ? "border-red-500 focus-visible:ring-red-500/20 animate-shake"
                               : ""
                           }`}
                           {...registrationForm.register("confirmPassword")}
                         />
                         <button
                           type="button"
-                          onClick={() =>
-                            setShowConfirmPassword(!showConfirmPassword)
-                          }
-                          className="absolute right-3 top-3 text-slate-400 hover:text-slate-600"
+                          onClick={() => setShowConfirmPassword(!showConfirmPassword)}
+                          className="absolute right-3 top-3 text-slate-400 hover:text-slate-600 transition-all duration-300 hover:scale-110"
                         >
                           {showConfirmPassword ? (
-                            <svg
-                              className="h-4 w-4"
-                              fill="none"
-                              stroke="currentColor"
-                              viewBox="0 0 24 24"
-                            >
+                            <svg className="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                               <path
                                 strokeLinecap="round"
                                 strokeLinejoin="round"
@@ -888,12 +943,7 @@ export default function AuthPage() {
                               />
                             </svg>
                           ) : (
-                            <svg
-                              className="h-4 w-4"
-                              fill="none"
-                              stroke="currentColor"
-                              viewBox="0 0 24 24"
-                            >
+                            <svg className="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                               <path
                                 strokeLinecap="round"
                                 strokeLinejoin="round"
@@ -904,26 +954,23 @@ export default function AuthPage() {
                                 strokeLinecap="round"
                                 strokeLinejoin="round"
                                 strokeWidth={2}
-                                d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"
+                                d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542 7z"
                               />
                             </svg>
                           )}
                         </button>
                       </div>
                       {registrationForm.formState.errors.confirmPassword && (
-                        <Alert className="border-red-200 bg-red-50">
+                        <Alert className="border-red-200 bg-red-50/80 backdrop-blur-sm animate-in slide-in-from-top-1 duration-300">
                           <AlertDescription className="text-red-800 text-sm">
-                            {
-                              registrationForm.formState.errors.confirmPassword
-                                .message
-                            }
+                            {registrationForm.formState.errors.confirmPassword.message}
                           </AlertDescription>
                         </Alert>
                       )}
                     </div>
 
                     {registrationForm.formState.errors.root && (
-                      <Alert className="border-red-200 bg-red-50">
+                      <Alert className="border-red-200 bg-red-50/80 backdrop-blur-sm animate-in slide-in-from-top-1 duration-300">
                         <AlertDescription className="text-red-800 text-sm">
                           {registrationForm.formState.errors.root.message}
                         </AlertDescription>
@@ -932,12 +979,20 @@ export default function AuthPage() {
 
                     <Button
                       type="submit"
-                      disabled={registrationForm.formState.isSubmitting}
-                      className="w-full h-11 bg-slate-900 hover:bg-slate-800 text-white disabled:opacity-50"
+                      disabled={registrationForm.formState.isSubmitting || isLoading}
+                      className="w-full h-12 bg-gradient-to-r from-slate-800 to-slate-900 hover:from-slate-900 hover:to-black text-white disabled:opacity-50 transition-all duration-300 hover:scale-105 hover:shadow-xl relative overflow-hidden group"
                     >
-                      {registrationForm.formState.isSubmitting
-                        ? "Creating Account..."
-                        : "Create Account"}
+                      <span className="relative z-10">
+                        {registrationForm.formState.isSubmitting || isLoading ? (
+                          <div className="flex items-center space-x-2">
+                            <div className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin"></div>
+                            <span>Creating Account...</span>
+                          </div>
+                        ) : (
+                          "Create Account"
+                        )}
+                      </span>
+                      <div className="absolute inset-0 bg-gradient-to-r from-blue-600 to-purple-600 opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
                     </Button>
                   </form>
                 </TabsContent>
@@ -947,5 +1002,5 @@ export default function AuthPage() {
         </div>
       </div>
     </div>
-  );
+  )
 }
