@@ -1,5 +1,5 @@
 const axios = require("axios");
-require("dotenv").config(); // to use process.env.USDA_API_KEY
+require("dotenv").config();
 
 exports.getCalories = async (req, res) => {
   const { dish_name, servings = 1 } = req.body ?? {};
@@ -8,7 +8,6 @@ exports.getCalories = async (req, res) => {
   }
 
   try {
-    // Step 1: Search food
     const searchResponse = await axios.get(
       "https://api.nal.usda.gov/fdc/v1/foods/search",
       {
@@ -25,7 +24,6 @@ exports.getCalories = async (req, res) => {
       return res.status(404).json({ message: "Dish not found in USDA database" });
     }
 
-    // Step 2: Fetch full nutrient data
     const foodDetailResponse = await axios.get(
       `https://api.nal.usda.gov/fdc/v1/food/${foodHit.fdcId}`,
       {
@@ -34,7 +32,6 @@ exports.getCalories = async (req, res) => {
     );
     const food = foodDetailResponse.data;
 
-    // Step 3: Determine calories per serving
     let caloriesPerServing = food.labelNutrients?.calories?.value ?? null;
 
     if (caloriesPerServing == null) {
