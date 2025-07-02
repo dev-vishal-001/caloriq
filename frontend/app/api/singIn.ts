@@ -1,5 +1,3 @@
-// lib/api/signIn.ts
-import { encryptPassword } from "../../lib/crypto";
 
 export interface SignInRequest {
   email: string;
@@ -8,7 +6,7 @@ export interface SignInRequest {
 }
 
 export interface SignInResponse {
-  exists: any;
+  exists: boolean;
   token: string;
   user: {
     name: string;
