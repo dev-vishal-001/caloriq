@@ -19,7 +19,7 @@ export interface RegisterRequest {
 
 // Reuse SignInResponse for register if response is same
 export interface SignInResponse {
-  exists: any
+  exists: boolean
   token: string
   user: {
     name: string
