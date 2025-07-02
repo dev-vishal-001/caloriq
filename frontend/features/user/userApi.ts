@@ -16,8 +16,15 @@ export const userApi = createApi({
         try {
           const data = await signInRequest(signInData)
           return { data }
-        } catch (error: any) {
-          return { error: { status: 500, data: error.message } }
+        } catch (error: unknown) {
+          const err = error as Error;
+        
+          return {
+            error: {
+              status: 500,
+              data: err.message || "Something went wrong.",
+            },
+          };
         }
       },
     }),
@@ -26,9 +33,17 @@ export const userApi = createApi({
         try {
           const data = await registerRequest(registerData);
           return { data };
-        } catch (error: any) {
-          return { error: { status: 500, data: error.message } };
+        } catch (error: unknown) {
+          const err = error as Error;
+        
+          return {
+            error: {
+              status: 500,
+              data: err.message || "An unexpected error occurred.",
+            },
+          };
         }
+        
       },
     }),
     getCalories: builder.mutation<CalorieResponse, CalorieRequest>({
@@ -36,14 +51,17 @@ export const userApi = createApi({
         try {
           const data = await getCaloriesRequest(calorieData);
           return { data };
-        } catch (error: any) {
+        } catch (error: unknown) {
+          const err = error as Error;
+        
           return {
             error: {
               status: 500,
-              data: error.message || 'Unable to fetch calories',
+              data: err.message || 'Unable to fetch calories',
             },
           };
         }
+        
       },
     }),
   }),
