@@ -17,7 +17,7 @@ export interface SignInResponse {
 export async function signInRequest(body: SignInRequest): Promise<SignInResponse> {
 
 
-  const res = await fetch("https://caloriq-backend.onrender.com/api/auth/signin", {
+  const res = await fetch("https://caloriq-back-end.onrender.com/api/auth/signin", {
     method: "POST",
     headers: {
       "Content-Type": "application/json",
