@@ -24,7 +24,7 @@ exports.register = async (req, res) => {
         email,
         mobile,
         password: password,
-        confirmPassword: password, // Optional, or skip entirely
+        confirmPassword: password,
       },
     });
 
