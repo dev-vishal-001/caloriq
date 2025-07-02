@@ -12,7 +12,7 @@ export interface CalorieRequest {
   }
   
   export async function getCaloriesRequest(body: CalorieRequest): Promise<CalorieResponse> {
-    const res = await fetch("https://caloriq-pafp5gc8a-vishalvd05-gmailcoms-projects.vercel.app/api/auth/getCalories", {
+    const res = await fetch("https://caloriq-backend.onrender.com/api/auth/getCalories", {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
