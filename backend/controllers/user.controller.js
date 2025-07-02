@@ -1,4 +1,3 @@
-// controllers/user.controller.js
 const prisma = require('../prisma/client');
 
 exports.getAllUsers = async (req, res) => {
