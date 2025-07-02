@@ -12,7 +12,7 @@ export interface CalorieRequest {
   }
   
   export async function getCaloriesRequest(body: CalorieRequest): Promise<CalorieResponse> {
-    const res = await fetch("http://localhost:5050/api/auth/getCalories", {
+    const res = await fetch("https://caloriq-backend.onrender.com/api/auth/getCalories", {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
