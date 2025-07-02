@@ -17,7 +17,7 @@ app.use('/users', userRoutes);
 app.use('/api/auth',registerRoutes)
 app.use('/api/auth',caloriesRoutes)
 
-
-app.listen(5050, () => {
+const port = process.env.BACKEND_PORT
+app.listen(port, () => {
   console.log('Server is running on http://localhost:5050');
 });
