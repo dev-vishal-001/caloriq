@@ -1,0 +1,41 @@
+// lib/api/signIn.ts
+import { encryptPassword } from "../../lib/crypto";
+
+export interface SignInRequest {
+  email: string;
+  password: string;
+  rememberMe: boolean;
+}
+
+export interface SignInResponse {
+  exists: any;
+  token: string;
+  user: {
+    name: string;
+    email: string;
+  };
+}
+
+export async function signInRequest(body: SignInRequest): Promise<SignInResponse> {
+
+
+  const res = await fetch("http://localhost:5050/api/auth/signin", {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify({
+      ...body,
+    }),
+  });
+
+  if (!res.ok) {
+    const err = await res.json();
+    console.error("❌ Backend error response:", err);
+    throw new Error(err.message || "Sign in failed");
+  }
+
+  const data = await res.json();
+  console.log("✅ Received response:", data);
+  return data;
+}
