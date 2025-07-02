@@ -28,7 +28,7 @@ export interface SignInResponse {
 }
 
 export async function registerRequest(body: RegisterRequest): Promise<SignInResponse> {
-  const res = await fetch("http://localhost:5050/api/auth/register", {
+  const res = await fetch("https://caloriq-backend.onrender.com/api/auth/register", {
     method: "POST",
     headers: {
       "Content-Type": "application/json",
