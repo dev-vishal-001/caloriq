@@ -79,15 +79,11 @@ export default function AuthPage() {
   const [triggerRegister] = useRegisterMutation()
   const [activeTab, setActiveTab] = useState("signin")
   const router = useRouter()
-
-  // Animation states
   const [loginProgress, setLoginProgress] = useState(0)
   const [loginSuccess, setLoginSuccess] = useState(false)
-
   const toggleTheme = () => {
     setIsDarkMode(!isDarkMode)
   }
-
   const signInForm = useForm<SignInFormData>({
     resolver: zodResolver(signInSchema),
     defaultValues: {
@@ -96,8 +92,6 @@ export default function AuthPage() {
       rememberMe: false,
     },
   })
-
-  // Registration Form
   const registrationForm = useForm<RegistrationFormData>({
     resolver: zodResolver(registrationSchema),
     defaultValues: {
@@ -109,9 +103,7 @@ export default function AuthPage() {
       confirmPassword: "",
     },
   })
-
   const passwordValue = registrationForm.watch("password")
-
   const getPasswordStrength = (password: string): { strength: number; label: string; color: string } => {
     let strength = 0
     if (password.length >= 8) strength++
@@ -119,10 +111,8 @@ export default function AuthPage() {
     if (/(?=.*[A-Z])/.test(password)) strength++
     if (/(?=.*\d)/.test(password)) strength++
     if (/(?=.*[@$!%*?&])/.test(password)) strength++
-
     const labels = ["Very Weak", "Weak", "Fair", "Good", "Strong"]
     const colors = ["bg-red-500", "bg-orange-500", "bg-yellow-500", "bg-blue-500", "bg-green-500"]
-
     return {
       strength: (strength / 5) * 100,
       label: labels[strength - 1] || "Very Weak",
@@ -145,10 +135,8 @@ export default function AuthPage() {
   }
 
   const handleSignIn = async (data: SignInFormData) => {
-    // Start animation
     setLoginSuccess(false)
     const progressInterval = simulateLoginProgress()
-
     try {
       const result = await triggerSignIn({
         ...data,
@@ -156,7 +144,6 @@ export default function AuthPage() {
       }).unwrap()
 
       if (!result.exists) {
-        // Clear animation on error
         clearInterval(progressInterval)
         setLoginProgress(0)
         signInForm.setError("root", { message: "Invalid email or password" })
@@ -166,15 +153,10 @@ export default function AuthPage() {
         })
         return
       }
-
-      // Complete progress and show success
       clearInterval(progressInterval)
       setLoginProgress(100)
       setLoginSuccess(true)
-
-      // Wait for success animation
       await new Promise((resolve) => setTimeout(resolve, 1000))
-
       signIn({ user: result.user, token: result.token })
       toast(`👋 Welcome back, ${result.user.name}!`, {
         description: "You're now signed in.",
@@ -182,7 +164,6 @@ export default function AuthPage() {
       })
       router.push("/dashboard")
     } catch (err: unknown) {
-      // Clear animation on error
       clearInterval(progressInterval)
       setLoginProgress(0)
       const error = err as Error
@@ -195,7 +176,6 @@ export default function AuthPage() {
         className: "bg-red-500 text-white border border-red-600",
       })
     } finally {
-      // Reset animation states
       setLoginProgress(0)
       setLoginSuccess(false)
     }
@@ -210,7 +190,6 @@ export default function AuthPage() {
       console.log("✅ Registration result:", result)
 
       if (result.exists) {
-        // User already registered
         registrationForm.setError("root", {
           message: "User already registered.",
         })
@@ -221,10 +200,9 @@ export default function AuthPage() {
         toast("🎉 Registration complete!", {
           description: "You can now log in to your account.",
         })
-        registrationForm.reset() // <-- Clear form inputs and errors
-        setActiveTab("signin") // <-- Switch tab to Sign In
+        registrationForm.reset()
+        setActiveTab("signin")
       } else {
-        // Unexpected structure
         registrationForm.setError("root", {
           message: "Unexpected response. Please try again.",
         })
@@ -296,7 +274,7 @@ export default function AuthPage() {
         />
 
         <div className="grid lg:grid-cols-2 min-h-screen relative z-10">
-          {/* Left side - Hero section */}
+          {/* Left side */}
           <div className="hidden lg:flex items-center justify-center p-8 relative">
             <div className="max-w-2xl text-center transform hover:scale-105 transition-transform duration-700 ease-out">
               <div className="mb-8 relative group">
@@ -336,7 +314,7 @@ export default function AuthPage() {
             </div>
           </div>
 
-          {/* Right side - Auth form */}
+          {/* Right side */}
           <div className="flex items-center justify-center p-4 lg:p-8 relative">
             <Card className="w-full max-w-md shadow-2xl border-0 bg-white/80 dark:bg-slate-800/80 backdrop-blur-xl rounded-3xl relative overflow-hidden animate-in fade-in-50 slide-in-from-right-4 duration-1000">
               {/* Card glow effect */}
@@ -370,7 +348,6 @@ export default function AuthPage() {
                       </div>
                     </div>
 
-                    {/* Progress bar */}
                     {!loginSuccess && (
                       <div className="w-64 mx-auto space-y-2">
                         <div className="flex justify-between text-sm text-slate-600 dark:text-slate-300">
@@ -387,8 +364,6 @@ export default function AuthPage() {
                         </div>
                       </div>
                     )}
-
-                    {/* Status messages */}
                     <div className="space-y-2">
                       {loginSuccess ? (
                         <div className="animate-in fade-in-50 slide-in-from-bottom-2 duration-500">
