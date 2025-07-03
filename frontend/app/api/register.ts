@@ -1,13 +1,8 @@
-// lib/api/signIn.ts
-
-// Keep this for login
 export interface SignInRequest {
   email: string
   password: string
   rememberMe: boolean
 }
-
-// New interface for registration
 export interface RegisterRequest {
   firstName: string
   lastName: string
@@ -16,8 +11,6 @@ export interface RegisterRequest {
   password: string
   confirmPassword: string
 }
-
-// Reuse SignInResponse for register if response is same
 export interface SignInResponse {
   exists: boolean
   token: string
