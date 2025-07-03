@@ -374,7 +374,7 @@ export default function Dashboard(): ReactElement {
                 <CardContent className="p-4">
                   <div className="text-center space-y-3">
                     <h3 className="text-lg font-semibold text-gray-800 dark:text-gray-200 flex items-center justify-center gap-2 group-hover:animate-bounce">
-                      <TrendingUp className="h-5 w-5 text-blue-500 group-hover:animate-spin" />
+                      <TrendingUp className="h-5 w-5 text-blue-500" />
                       Did You Know?
                     </h3>
                     <div
