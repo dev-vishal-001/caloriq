@@ -13,10 +13,7 @@ export interface SignInResponse {
     email: string;
   };
 }
-
 export async function signInRequest(body: SignInRequest): Promise<SignInResponse> {
-
-
   const res = await fetch("https://caloriq-back.onrender.com/api/auth/signin", {
     method: "POST",
     headers: {
@@ -32,7 +29,6 @@ export async function signInRequest(body: SignInRequest): Promise<SignInResponse
     console.error("❌ Backend error response:", err);
     throw new Error(err.message || "Sign in failed");
   }
-
   const data = await res.json();
   console.log("✅ Received response:", data);
   return data;
