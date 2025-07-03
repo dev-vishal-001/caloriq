@@ -130,7 +130,6 @@ export default function Dashboard(): ReactElement {
   const [dailyGoal] = useState(2000)
   const [dailyConsumed, setDailyConsumed] = useState(850)
   const [recentSearches] = useState(["Chicken Biryani", "Caesar Salad", "Green Smoothie"])
-
   const handleLogout = () => {
     logout()
     router.push("/")
@@ -237,7 +236,6 @@ export default function Dashboard(): ReactElement {
 
   return (
     <div className="min-h-screen relative overflow-hidden bg-gradient-to-br from-gray-50 via-white to-gray-100 dark:from-gray-950 dark:via-black dark:to-gray-900 transition-all duration-500">
-      {/* Enhanced Background Effects */}
       <div className="absolute inset-0 opacity-30 dark:opacity-20">
         <div className="absolute top-10 left-10 w-20 h-20 bg-gradient-to-r from-orange-200 to-red-200 dark:from-orange-900 dark:to-red-900 rounded-full blur-xl animate-pulse-slow"></div>
         <div
@@ -261,8 +259,6 @@ export default function Dashboard(): ReactElement {
           style={{ animationDelay: "3s" }}
         ></div>
       </div>
-
-      {/* Floating Food Icons */}
       <div className="absolute inset-0 pointer-events-none overflow-hidden">
         {foodIcons.map((Icon, index) => (
           <div
@@ -283,8 +279,6 @@ export default function Dashboard(): ReactElement {
       <div className="relative z-10 p-3 sm:p-4 lg:p-6">
         <div className="max-w-7xl mx-auto">
           <Toaster />
-
-          {/* Header with Welcome and Controls */}
           <div className="flex justify-between items-start mb-6">
             {/* Welcome Text - Left Top */}
             <div className="flex-1">
@@ -302,8 +296,6 @@ export default function Dashboard(): ReactElement {
                 Discover the nutritional value of your favorite dishes
               </p>
             </div>
-
-            {/* Theme Toggle and Logout */}
             <div className="flex gap-3">
               <Button
                 variant="outline"
@@ -330,12 +322,8 @@ export default function Dashboard(): ReactElement {
               </Button>
             </div>
           </div>
-
-          {/* Main Layout with Sidebar Features */}
           <div className="grid grid-cols-1 lg:grid-cols-12 gap-6">
-            {/* Left Sidebar Features */}
             <div className="lg:col-span-3 space-y-4">
-              {/* Daily Goal Tracker */}
               <Card className="group bg-white/60 dark:bg-black/60 backdrop-blur-sm border border-gray-200 dark:border-gray-700 shadow-xl hover:shadow-2xl transition-all duration-500 hover:scale-[1.02] hover:-rotate-1">
                 <CardHeader className="pb-3">
                   <CardTitle className="text-lg font-semibold text-gray-800 dark:text-gray-200 flex items-center gap-2">
@@ -365,8 +353,6 @@ export default function Dashboard(): ReactElement {
                   </div>
                 </CardContent>
               </Card>
-
-              {/* Recent Searches */}
               <Card className="group bg-white/60 dark:bg-black/60 backdrop-blur-sm border border-gray-200 dark:border-gray-700 shadow-xl hover:shadow-2xl transition-all duration-500 hover:scale-[1.02] hover:rotate-1">
                 <CardHeader className="pb-3">
                   <CardTitle className="text-lg font-semibold text-gray-800 dark:text-gray-200 flex items-center gap-2">
@@ -394,10 +380,7 @@ export default function Dashboard(): ReactElement {
                 </CardContent>
               </Card>
             </div>
-
-            {/* Center Content */}
             <div className="lg:col-span-6 space-y-6">
-              {/* Quote Section */}
               <div className="text-center px-4 sm:px-6 lg:px-8">
                 <div className="relative overflow-hidden h-16 sm:h-20 flex items-center justify-center">
                   <div
@@ -417,8 +400,6 @@ export default function Dashboard(): ReactElement {
                   </div>
                 </div>
               </div>
-
-              {/* Search Form */}
               <div className="flex flex-col items-center space-y-3 sm:space-y-4 max-w-sm sm:max-w-md mx-auto px-4">
                 <div className="w-full space-y-3">
                   <div className="relative group">
@@ -491,8 +472,6 @@ export default function Dashboard(): ReactElement {
                   )}
                 </div>
               </div>
-
-              {/* Results Section */}
               <div
                 className={`transition-all duration-700 ease-out transform px-2 sm:px-4 ${
                   showResults
@@ -551,7 +530,6 @@ export default function Dashboard(): ReactElement {
                 )}
               </div>
 
-              {/* Error Section */}
               <div
                 className={`max-w-sm sm:max-w-md mx-auto px-4 transition-all duration-500 ease-in-out transform ${
                   showError
@@ -571,7 +549,6 @@ export default function Dashboard(): ReactElement {
                 )}
               </div>
 
-              {/* Default Content */}
               {!showResults && !showError && (
                 <>
                   <div className="max-w-md mx-auto px-4">
@@ -643,9 +620,7 @@ export default function Dashboard(): ReactElement {
               )}
             </div>
 
-            {/* Right Sidebar Features */}
             <div className="lg:col-span-3 space-y-4">
-              {/* Nutrition Tips */}
               <Card className="group bg-white/60 dark:bg-black/60 backdrop-blur-sm border border-gray-200 dark:border-gray-700 shadow-xl hover:shadow-2xl transition-all duration-500 hover:scale-[1.02] hover:rotate-1">
                 <CardHeader className="pb-3">
                   <CardTitle className="text-lg font-semibold text-gray-800 dark:text-gray-200 flex items-center gap-2">
@@ -673,7 +648,6 @@ export default function Dashboard(): ReactElement {
                 </CardContent>
               </Card>
 
-              {/* Quick Stats */}
               <Card className="group bg-white/60 dark:bg-black/60 backdrop-blur-sm border border-gray-200 dark:border-gray-700 shadow-xl hover:shadow-2xl transition-all duration-500 hover:scale-[1.02] hover:-rotate-1">
                 <CardHeader className="pb-3">
                   <CardTitle className="text-lg font-semibold text-gray-800 dark:text-gray-200 flex items-center gap-2">
