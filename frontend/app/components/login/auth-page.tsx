@@ -19,7 +19,7 @@ import { toast } from "sonner";
 import { Toaster } from "@/components/ui/sonner";
 import { parsePhoneNumberFromString, CountryCode } from "libphonenumber-js";
 import { Check, X, AlertCircle, Info, Phone } from "lucide-react";
-import { useAuthStore } from "@/store/useAuthStore"
+import { useAuthStore } from "../../../store/useAuthStore";
 
 
 type SignInFormData = z.infer<typeof signInSchema>;
