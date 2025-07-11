@@ -609,13 +609,14 @@ const formatMobileNumber = (value: string, country: (typeof countries)[0]) => {
     const fullNumber = `${country.dialCode}${cleanValue}`;
     const phoneNumber = parsePhoneNumberFromString(fullNumber, country.code as CountryCode);
     if (phoneNumber && cleanValue.length >= country.minLength) {
-      return phoneNumber.formatNational().replace(/^\+\d+\s/, "");
+      const formatted = phoneNumber.formatNational().replace(/^0+/, "");
+      return formatted;
     }
   } catch (error) {
     console.warn("Phone number formatting failed, falling back:", error);
   }
 
-  // Fallback to existing manual formatting
+  // Fallback to manual formatting
   switch (country.code) {
     case "IN":
       return cleanValue.replace(/(\d{5})(\d{5})/, "$1 $2");
@@ -645,6 +646,7 @@ const formatMobileNumber = (value: string, country: (typeof countries)[0]) => {
       return cleanValue;
   }
 };
+
 
 export interface RegistrationRequest {
   email: string;
