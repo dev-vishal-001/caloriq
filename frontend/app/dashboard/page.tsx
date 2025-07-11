@@ -509,7 +509,7 @@ export default function Dashboard(): ReactElement {
                   <div className="p-2 bg-orange-100 dark:bg-orange-900 rounded-lg">
                     <History className="h-5 w-5 text-orange-600 dark:text-orange-400" />
                   </div>
-                  <span>Today's Log</span>
+                  <span>Today&apos;s Log</span>
                 </CardTitle>
               </CardHeader>
               <CardContent>
