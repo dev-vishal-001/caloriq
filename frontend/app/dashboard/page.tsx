@@ -4,7 +4,7 @@ import type React from "react";
 
 import type { ReactElement } from "react";
 import { useState, useEffect } from "react";
-import { useAuthStore } from "@/store/useAuthStore";
+import { useAuthStore } from "../../store/useAuthStore";
 import {
   useCreateHistoryMutation,
   useDeleteHistoryByIdMutation,
