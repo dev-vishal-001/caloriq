@@ -35,12 +35,14 @@ import { useGetHistoryByEmailQuery } from "@/features/user/userApi";
 import { Modal } from "antd";
 
 const POPULAR_FOODS = [
+  "Milk",
+  "Egg Omelette",
+  "Beef",
   "Grilled Chicken Breast",
-  "Quinoa Bowl",
   "Greek Salad",
   "Salmon Fillet",
-  "Avocado Toast",
-  "Protein Smoothie",
+  "Cheese Burger",
+  "Pasta"
 ];
 
 interface HistoryEntry {
