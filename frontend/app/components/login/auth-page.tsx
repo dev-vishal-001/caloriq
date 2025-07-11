@@ -8,12 +8,27 @@ import { z } from "zod";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { useRegisterMutation, useSignInMutation } from "@/features/user/userApi";
-import {Card,CardContent,CardDescription,CardHeader,CardTitle,} from "@/components/ui/card";
+import {
+  useRegisterMutation,
+  useSignInMutation,
+} from "@/features/user/userApi";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import { Checkbox } from "@/components/ui/checkbox";
-import {Select,SelectContent,SelectItem,SelectTrigger,SelectValue,} from "@/components/ui/select";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 import { useRouter } from "next/navigation";
 import { toast } from "sonner";
 import { Toaster } from "@/components/ui/sonner";
@@ -21,14 +36,17 @@ import { parsePhoneNumberFromString, CountryCode } from "libphonenumber-js";
 import { Check, X, AlertCircle, Info, Phone } from "lucide-react";
 import { useAuthStore } from "../../../store/useAuthStore";
 
-
 type SignInFormData = z.infer<typeof signInSchema>;
-type RegistrationFormData = z.infer<ReturnType<typeof createRegistrationSchema>>;
+type RegistrationFormData = z.infer<
+  ReturnType<typeof createRegistrationSchema>
+>;
 interface PhoneValidationPopupProps {
   phoneNumber: string;
   countryCode: string;
   selectedCountryData: (typeof countries)[0];
   children: React.ReactNode;
+  isOpen: boolean; 
+  onClose: () => void; 
 }
 
 const countries = [
@@ -186,7 +204,6 @@ const signInSchema = z.object({
   rememberMe: z.boolean().optional(),
 });
 
-
 const getContextualValidationMessage = (
   phoneNumber: string,
   countryData: (typeof countries)[0]
@@ -274,7 +291,10 @@ const createMobileValidation = (selectedCountry: string) => {
     .refine(
       (cleanNumber) => {
         const fullNumber = `${country.dialCode}${cleanNumber}`;
-        const phoneNumber = parsePhoneNumberFromString(fullNumber, country.code as CountryCode);
+        const phoneNumber = parsePhoneNumberFromString(
+          fullNumber,
+          country.code as CountryCode
+        );
         return phoneNumber && phoneNumber.isValid();
       },
       {
@@ -283,13 +303,12 @@ const createMobileValidation = (selectedCountry: string) => {
     )
     .refine(
       (cleanNumber) => {
-        // Check for obvious fake numbers
         const fakePatterns = [
-          /^1{8,}$/, // All 1s
-          /^0{8,}$/, // All 0s
-          /^1234567890$/, // Sequential
-          /^0987654321$/, // Reverse sequential
-          /^(\d)\1{7,}$/, // Repeated digits
+          /^1{8,}$/, 
+          /^0{8,}$/, 
+          /^1234567890$/,
+          /^0987654321$/,
+          /^(\d)\1{7,}$/, 
         ];
         return !fakePatterns.some((pattern) => pattern.test(cleanNumber));
       },
@@ -307,11 +326,9 @@ const PhoneValidationPopup = ({
   const [isVisible, setIsVisible] = useState(false);
   const popupRef = useRef<HTMLDivElement>(null);
   const inputContainerRef = useRef<HTMLDivElement>(null);
-
   const cleanNumber = phoneNumber.replace(/[\s\-()]/g, "");
   const fullNumber = `${selectedCountryData.dialCode}${cleanNumber}`;
 
-  // Close popup when clicking outside
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
       if (
@@ -330,7 +347,6 @@ const PhoneValidationPopup = ({
     };
   }, []);
 
-  // Show popup when phone number has input and input is focused
   useEffect(() => {
     if (cleanNumber.length > 0) {
       const inputElement = inputContainerRef.current?.querySelector("input");
@@ -342,13 +358,11 @@ const PhoneValidationPopup = ({
     }
   }, [phoneNumber, cleanNumber]);
 
-  // Get contextual message
   const contextualMessage = getContextualValidationMessage(
     phoneNumber,
     selectedCountryData
   );
-
-  // Validation checks
+  
   const checks = [
     {
       id: "length",
@@ -376,7 +390,7 @@ const PhoneValidationPopup = ({
       id: "genuine",
       label: "Genuine",
       status: (() => {
-        if (cleanNumber.length < 8) return null; // Not enough digits to check
+        if (cleanNumber.length < 8) return null;
         const fakePatterns = [
           /^1{8,}$/,
           /^0{8,}$/,
@@ -392,7 +406,11 @@ const PhoneValidationPopup = ({
   const overallValid = checks.every((check) => check.status === true);
   const hasValidationIssue =
     contextualMessage && contextualMessage.type === "error";
-
+    useEffect(() => {
+      if (overallValid && isVisible) {
+        setIsVisible(false);
+      }
+    }, [overallValid, isVisible]);
   return (
     <div className="relative" ref={popupRef}>
       <div
@@ -405,7 +423,6 @@ const PhoneValidationPopup = ({
       {isVisible && (
         <div className="fixed md:absolute top-100 md:top-0 right-4 md:right-0 z-[9999] md:translate-x-full md:-translate-y-1 w-[calc(100%-2rem)] max-w-xs md:w-52 md:max-w-none ml-3">
           <div className="bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-700 shadow-2xl rounded-lg p-3 text-xs backdrop-blur-sm">
-            {/* Compact Header */}
             <div
               className={`flex items-center space-x-2 mb-2 p-1.5 rounded ${
                 hasValidationIssue
@@ -444,7 +461,6 @@ const PhoneValidationPopup = ({
               )}
             </div>
 
-            {/* Contextual Message */}
             {contextualMessage && (
               <div
                 className={`flex items-start space-x-1.5 mb-2 p-1.5 rounded text-xs ${
@@ -460,7 +476,6 @@ const PhoneValidationPopup = ({
               </div>
             )}
 
-            {/* Compact Validation Checks */}
             <div className="space-y-1 max-h-40 overflow-y-auto pr-1">
               {checks.map((check) => (
                 <div key={check.id} className="flex items-center space-x-1.5">
@@ -486,7 +501,6 @@ const PhoneValidationPopup = ({
               ))}
             </div>
 
-            {/* Mini Progress Bar */}
             <div className="mt-2 pt-2 border-t border-gray-200 dark:border-gray-700">
               <div className="flex justify-between text-xs text-gray-500 dark:text-gray-400 mb-1">
                 <span>Progress</span>
@@ -521,6 +535,8 @@ const PhoneValidationPopup = ({
   );
 };
 
+
+
 const handleMobileInput = (
   value: string,
   country: (typeof countries)[0],
@@ -531,8 +547,6 @@ const handleMobileInput = (
   if (cleanValue.length > country.maxLength) {
     cleanValue = cleanValue.slice(0, country.maxLength);
   }
-
-  // Country-specific input restrictions (keeping existing logic)
   switch (country.code) {
     case "IN":
       if (cleanValue.length > 0 && !/^[6-9]/.test(cleanValue)) {
@@ -607,7 +621,10 @@ const formatMobileNumber = (value: string, country: (typeof countries)[0]) => {
 
   try {
     const fullNumber = `${country.dialCode}${cleanValue}`;
-    const phoneNumber = parsePhoneNumberFromString(fullNumber, country.code as CountryCode);
+    const phoneNumber = parsePhoneNumberFromString(
+      fullNumber,
+      country.code as CountryCode
+    );
     if (phoneNumber && cleanValue.length >= country.minLength) {
       const formatted = phoneNumber.formatNational().replace(/^0+/, "");
       return formatted;
@@ -615,8 +632,6 @@ const formatMobileNumber = (value: string, country: (typeof countries)[0]) => {
   } catch (error) {
     console.warn("Phone number formatting failed, falling back:", error);
   }
-
-  // Fallback to manual formatting
   switch (country.code) {
     case "IN":
       return cleanValue.replace(/(\d{5})(\d{5})/, "$1 $2");
@@ -647,7 +662,6 @@ const formatMobileNumber = (value: string, country: (typeof countries)[0]) => {
   }
 };
 
-
 export interface RegistrationRequest {
   email: string;
   password: string;
@@ -659,7 +673,8 @@ export interface RegistrationRequest {
   fullMobileNumber?: string;
 }
 
-const createRegistrationSchema = (selectedCountry: string) => z
+const createRegistrationSchema = (selectedCountry: string) =>
+  z
     .object({
       firstName: z
         .string()
@@ -713,13 +728,14 @@ export default function AuthPage() {
   const [isDarkMode, setIsDarkMode] = useState(false);
   const [selectedCountry, setSelectedCountry] = useState("IN");
   const { signIn } = useAuthStore();
-  const [triggerSignIn, { isLoading }] = useSignInMutation()
-  
+  const [triggerSignIn, { isLoading }] = useSignInMutation();
+
   const [triggerRegister] = useRegisterMutation();
   const [activeTab, setActiveTab] = useState("signin");
   const router = useRouter();
   const [loginProgress, setLoginProgress] = useState(0);
   const [loginSuccess, setLoginSuccess] = useState(false);
+  const [isPopupOpen, setIsPopupOpen] = useState(true);
 
   const toggleTheme = () => {
     setIsDarkMode(!isDarkMode);
@@ -802,51 +818,51 @@ export default function AuthPage() {
   };
 
   const handleSignIn = async (data: SignInFormData) => {
-    setLoginSuccess(false)
-    const progressInterval = simulateLoginProgress()
+    setLoginSuccess(false);
+    const progressInterval = simulateLoginProgress();
     try {
       const result = await triggerSignIn({
         ...data,
         rememberMe: data.rememberMe ?? false,
-      }).unwrap()
+      }).unwrap();
 
       if (!result.exists) {
-        clearInterval(progressInterval)
-        setLoginProgress(0)
-        signInForm.setError("root", { message: "Invalid email or password" })
+        clearInterval(progressInterval);
+        setLoginProgress(0);
+        signInForm.setError("root", { message: "Invalid email or password" });
         toast("❌ Invalid credentials", {
           description: "Please check your email and password.",
           className: "bg-red-500 text-white border border-red-600",
-        })
-        return
+        });
+        return;
       }
-      clearInterval(progressInterval)
-      setLoginProgress(100)
-      setLoginSuccess(true)
-      await new Promise((resolve) => setTimeout(resolve, 1000))
-      signIn({ user: result.user, token: result.token })
+      clearInterval(progressInterval);
+      setLoginProgress(100);
+      setLoginSuccess(true);
+      await new Promise((resolve) => setTimeout(resolve, 1000));
+      signIn({ user: result.user, token: result.token });
       toast(`👋 Welcome back, ${result.user.name}!`, {
         description: "You're now signed in.",
         duration: 3000,
-      })
-      router.push("/dashboard")
+      });
+      router.push("/dashboard");
     } catch (err: unknown) {
-      clearInterval(progressInterval)
-      setLoginProgress(0)
-      const error = err as Error
-      console.error("Login failed:", error)
+      clearInterval(progressInterval);
+      setLoginProgress(0);
+      const error = err as Error;
+      console.error("Login failed:", error);
       signInForm.setError("root", {
         message: "Something went wrong. Please try again.",
-      })
+      });
       toast("⚠️ Unable to sign in", {
         description: error.message ?? "Unexpected error. Please try again.",
         className: "bg-red-500 text-white border border-red-600",
-      })
+      });
     } finally {
-      setLoginProgress(0)
-      setLoginSuccess(false)
+      setLoginProgress(0);
+      setLoginSuccess(false);
     }
-  }
+  };
 
   const handleRegister = async (data: RegistrationFormData) => {
     try {
@@ -868,7 +884,7 @@ export default function AuthPage() {
       });
 
       const result = await triggerRegister(registrationData).unwrap();
-      
+
       console.log("✅ Registration result:", result);
 
       if (result.exists) {
@@ -901,11 +917,20 @@ export default function AuthPage() {
 
   const selectedCountryData =
     countries.find((c) => c.code === selectedCountry) || countries[0];
+  useEffect(() => {
+    const mobile = registrationForm.watch("mobile");
+    const phoneNumber = parsePhoneNumberFromString(
+      `${selectedCountryData.dialCode}${mobile}`,
+      selectedCountryData.code as CountryCode
+    );
 
+    if (phoneNumber && phoneNumber.isValid()) {
+      setIsPopupOpen(false); // close popup
+    }
+  }, [registrationForm.watch("mobile"), selectedCountryData]);
   return (
     <div className={isDarkMode ? "dark" : ""}>
       <div className="min-h-screen bg-gradient-to-br from-gray-50 via-white to-gray-100 dark:from-gray-950 dark:via-gray-900 dark:to-gray-800 transition-all duration-700">
-        {/* Modern Background Pattern */}
         <div className="absolute inset-0 overflow-hidden">
           <div className="absolute top-0 left-0 w-full h-full">
             <div className="absolute top-20 left-20 w-72 h-72 bg-gradient-to-r from-blue-400/10 to-purple-400/10 dark:from-blue-500/20 dark:to-purple-500/20 rounded-full blur-3xl animate-pulse"></div>
@@ -913,8 +938,6 @@ export default function AuthPage() {
             <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-80 h-80 bg-gradient-to-r from-green-400/5 to-blue-400/5 dark:from-green-500/10 dark:to-blue-500/10 rounded-full blur-3xl animate-pulse delay-500"></div>
           </div>
         </div>
-
-        {/* Theme Toggle */}
         <div className="absolute top-6 right-6 z-50">
           <Button
             variant="outline"
@@ -959,10 +982,8 @@ export default function AuthPage() {
         />
 
         <div className="flex min-h-screen">
-          {/* Left Side - Brand Section */}
           <div className="hidden lg:flex lg:w-1/2 items-center justify-center p-12 relative">
             <div className="max-w-lg text-center space-y-8">
-              {/* Logo/Brand */}
               <div className="space-y-4">
                 <div className="w-20 h-20 mx-auto bg-gradient-to-r from-blue-600 to-purple-600 rounded-2xl flex items-center justify-center shadow-2xl">
                   <svg
@@ -986,8 +1007,6 @@ export default function AuthPage() {
                   Your Health, Simplified
                 </p>
               </div>
-
-              {/* Features */}
               <div className="space-y-6">
                 <div className="flex items-center space-x-4 p-4 bg-white/50 dark:bg-gray-800/50 rounded-2xl backdrop-blur-sm border border-gray-200/50 dark:border-gray-700/50">
                   <div className="w-12 h-12 bg-green-100 dark:bg-green-900/30 rounded-xl flex items-center justify-center">
@@ -1068,10 +1087,8 @@ export default function AuthPage() {
             </div>
           </div>
 
-          {/* Right Side - Auth Form */}
           <div className="w-full lg:w-1/2 flex items-center justify-center p-6 lg:p-12 relative z-10">
             <Card className="w-full max-w-md bg-white/80 dark:bg-gray-900/80 backdrop-blur-xl border-0 shadow-2xl rounded-3xl overflow-visible">
-              {/* Loading Overlay */}
               {isLoading && (
                 <div className="absolute inset-0 bg-white/95 dark:bg-gray-900/95 backdrop-blur-sm z-50 flex items-center justify-center rounded-3xl">
                   <div className="text-center space-y-6">
@@ -1160,7 +1177,6 @@ export default function AuthPage() {
                   onValueChange={setActiveTab}
                   className="w-full"
                 >
-                  {/* Modern Tab List */}
                   <TabsList className="grid w-full grid-cols-2 mb-8 bg-gray-100 dark:bg-gray-800 rounded-2xl p-1 h-12">
                     <TabsTrigger
                       value="signin"
@@ -1175,14 +1191,11 @@ export default function AuthPage() {
                       Register
                     </TabsTrigger>
                   </TabsList>
-
-                  {/* Sign In Tab */}
                   <TabsContent value="signin" className="space-y-6">
                     <form
                       onSubmit={signInForm.handleSubmit(handleSignIn)}
                       className="space-y-5"
                     >
-                      {/* Email Field */}
                       <div className="space-y-2">
                         <Label
                           htmlFor="signin-email"
@@ -1226,8 +1239,6 @@ export default function AuthPage() {
                           </Alert>
                         )}
                       </div>
-
-                      {/* Password Field */}
                       <div className="space-y-2">
                         <Label
                           htmlFor="signin-password"
@@ -1312,8 +1323,6 @@ export default function AuthPage() {
                           </Alert>
                         )}
                       </div>
-
-                      {/* Remember Me & Forgot Password */}
                       <div className="flex items-center justify-between">
                         <div className="flex items-center space-x-2">
                           <Checkbox
@@ -1335,8 +1344,6 @@ export default function AuthPage() {
                           Forgot password?
                         </a>
                       </div>
-
-                      {/* Error Alert */}
                       {signInForm.formState.errors.root && (
                         <Alert className="border-red-200 bg-red-50 dark:border-red-800 dark:bg-red-950/50">
                           <AlertDescription className="text-red-800 dark:text-red-200 text-sm">
@@ -1344,8 +1351,6 @@ export default function AuthPage() {
                           </AlertDescription>
                         </Alert>
                       )}
-
-                      {/* Submit Button */}
                       <Button
                         type="submit"
                         disabled={
@@ -1365,13 +1370,11 @@ export default function AuthPage() {
                     </form>
                   </TabsContent>
 
-                  {/* Register Tab */}
                   <TabsContent value="register" className="space-y-5">
                     <form
                       onSubmit={registrationForm.handleSubmit(handleRegister)}
                       className="space-y-4"
                     >
-                      {/* Name Fields */}
                       <div className="grid grid-cols-2 gap-4">
                         <div className="space-y-2">
                           <Label
@@ -1428,8 +1431,6 @@ export default function AuthPage() {
                           )}
                         </div>
                       </div>
-
-                      {/* Email Field */}
                       <div className="space-y-2">
                         <Label
                           htmlFor="register-email"
@@ -1471,8 +1472,6 @@ export default function AuthPage() {
                           </p>
                         )}
                       </div>
-
-                      {/* Phone Number Field with Compact Popup Validation */}
                       <div className="space-y-2">
                         <Label
                           htmlFor="mobile"
@@ -1481,7 +1480,6 @@ export default function AuthPage() {
                           Phone Number
                         </Label>
                         <div className="flex space-x-2">
-                          {/* Country Selector */}
                           <Select
                             value={selectedCountry}
                             onValueChange={handleCountryChange}
@@ -1522,15 +1520,14 @@ export default function AuthPage() {
                               ))}
                             </SelectContent>
                           </Select>
-
-                          {/* Mobile Input with Always-Visible Popup Validation */}
                           <PhoneValidationPopup
                             phoneNumber={mobileValue || ""}
                             countryCode={selectedCountry}
                             selectedCountryData={selectedCountryData}
+                            isOpen={isPopupOpen}
+                            onClose={() => setIsPopupOpen(false)}
                           >
                             <div className="flex-1 relative">
-                              {/* Phone Icon */}
                               <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
                                 <Phone className="w-4 h-4 text-gray-400 dark:text-gray-500" />
                               </div>
@@ -1572,7 +1569,6 @@ export default function AuthPage() {
                         )}
                       </div>
 
-                      {/* Password Field */}
                       <div className="space-y-2">
                         <Label
                           htmlFor="register-password"
@@ -1650,7 +1646,6 @@ export default function AuthPage() {
                           </button>
                         </div>
 
-                        {/* Password Strength Indicator */}
                         {passwordValue && (
                           <div className="space-y-2">
                             <div className="flex items-center justify-between text-xs">
@@ -1695,7 +1690,6 @@ export default function AuthPage() {
                         )}
                       </div>
 
-                      {/* Confirm Password Field */}
                       <div className="space-y-2">
                         <Label
                           htmlFor="confirm-password"
@@ -1784,7 +1778,6 @@ export default function AuthPage() {
                         )}
                       </div>
 
-                      {/* Error Alert */}
                       {registrationForm.formState.errors.root && (
                         <Alert className="border-red-200 bg-red-50 dark:border-red-800 dark:bg-red-950/50">
                           <AlertDescription className="text-red-800 dark:text-red-200 text-sm">
@@ -1793,7 +1786,6 @@ export default function AuthPage() {
                         </Alert>
                       )}
 
-                      {/* Submit Button */}
                       <Button
                         type="submit"
                         disabled={
