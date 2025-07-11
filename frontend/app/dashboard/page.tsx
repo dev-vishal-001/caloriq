@@ -581,10 +581,9 @@ export default function Dashboard(): ReactElement {
                               },
                             }}
                           >
-                            <p>
-                              Are you sure you want to delete
-                              <strong>{entryToDelete?.dish_name}</strong> from
-                              your daily log?
+                             <p>
+                              Are you sure you want to delete{" "}
+                              {entryToDelete?.dish_name} from your daily log?
                             </p>
                           </Modal>
 
